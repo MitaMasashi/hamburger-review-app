@@ -12,7 +12,7 @@ class ReviewBase(SQLModel):
     rating_buns: int = Field(ge=1, le=5, description="1=Soft/Fluffy, 5=Hard/Crispy")
     rating_sauce: int = Field(ge=1, le=5, description="1=Mild/Simple, 5=Strong/Rich")
     price: int
-    visit_date: datetime
+    visit_date: Optional[datetime] = None
     image_url: Optional[str] = None
     tags: Optional[str] = None # Comma separated tags
     comment: Optional[str] = None

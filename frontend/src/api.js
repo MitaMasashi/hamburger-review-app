@@ -18,6 +18,18 @@ export const createReview = async (reviewData) => {
   return response.json();
 };
 
+export const updateReview = async (id, reviewData) => {
+  const response = await fetch(`${API_URL}/reviews/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(reviewData),
+  });
+  if (!response.ok) throw new Error('Failed to update review');
+  return response.json();
+};
+
 export const uploadImage = async (file) => {
   const formData = new FormData();
   formData.append('file', file);
