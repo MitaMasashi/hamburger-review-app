@@ -1,77 +1,101 @@
-# Hamburger Review App - Deployment Guide
+# ハンバーガーレビューアプリ 開発・実行ガイド
 
-このアプリケーションを別のPCで実行するための手順です。
+このアプリは、React (Vite) + FastAPI (Python) で構築されたPWA対応Webアプリケーションです。
 
-## 前提条件
+## 1. 環境構築 (初回のみ)
 
-新しいPCに以下のソフトウェアがインストールされている必要があります。
+新しいPCで開発を始める場合の手順です。
 
-*   **Git**: ソースコードを取得するために必要です。
-*   **Python (3.11以上推奨)**: バックエンドを実行するために必要です。
-*   **Node.js (LTS版推奨)**: フロントエンドをビルドするために必要です。
+### 前提条件
+- Git
+- Python 3.9以上
+- Node.js (npm)
 
-## セットアップ手順
+### 手順
 
-### 1. ソースコードの取得 (Clone)
+1. **ソースコードの取得**
+   ```bash
+   git clone https://github.com/MitaMasashi/hamburger-review-app.git
+   cd hamburger-review-app
+   ```
 
-コマンドプロンプトまたはターミナルを開き、GitHubからコードをダウンロードします。
+2. **バックエンドのセットアップ**
+   ```bash
+   cd backend
+   pip install pipenv
+   pipenv install
+   ```
 
+3. **フロントエンドのセットアップ**
+   ```bash
+   cd ../frontend
+   npm install
+   ```
+
+---
+
+## 2. アプリの起動方法
+
+用途に合わせて2つの起動方法があります。
+
+### A. 開発モード (推奨)
+コードを編集しながら確認する場合に使います。
+*   **Windows**: `start_app.bat` をダブルクリック
+*   **Mac/Linux**: `./start_app.sh` を実行
+
+または手動で:
 ```bash
-git clone <あなたのGitHubリポジトリURL>
-cd hamburger-review-app
-```
-
-### 2. バックエンドのセットアップ
-
-バックエンドの依存ライブラリをインストールします。
-
-```bash
+# ターミナル1 (バックエンド)
 cd backend
+pipenv run uvicorn main:app --reload
 
-# pipenvのインストール（まだの場合）
-pip install pipenv
-
-# ライブラリのインストール
-pipenv install
-
-# データベースの初期化（自動で行われますが、念のため確認）
-# 初回起動時に database.db が作成されます。
+# ターミナル2 (フロントエンド)
+cd frontend
+npm run dev
 ```
+アクセス: http://localhost:5173
 
-### 3. フロントエンドのセットアップとビルド
+### B. PWA動作確認モード (スマホ実機確認用)
+スマホでインストール可能なアプリ(PWA)として動作確認する場合に使います。
 
-フロントエンドのライブラリをインストールし、本番用にビルドします。
+1. **バックエンド起動**
+   ```bash
+   cd backend
+   pipenv run uvicorn main:app --host 0.0.0.0 --port 8000
+   ```
 
-```bash
-cd ../frontend
+2. **フロントエンド ビルド & プレビュー**
+   ```bash
+   cd frontend
+   npm run build
+   npm run preview -- --host
+   ```
 
-# ライブラリのインストール
-npm install
+---
 
-# ビルド（Reactを静的ファイルに変換）
-npm run build
-```
+## 3. スマホ実機での確認方法 (ngrok使用)
 
-### 4. アプリケーションの起動
+PWAとしてスマホにインストールするには、**HTTPS接続**が必須です。
+ローカル環境を一時的に外部公開できるツール「ngrok」を使用します。
 
-バックエンドサーバーを起動します。これだけでフロントエンドも一緒に配信されます。
+### 手順
 
-```bash
-cd ../backend
+1. **ngrokのインストール**
+   [公式サイト](https://ngrok.com)からダウンロードし、認証トークンを設定します。
 
-# サーバー起動
-pipenv run uvicorn main:app --host 0.0.0.0 --port 8000
-```
+2. **ngrokの起動**
+   上記の「B. PWA動作確認モード」でアプリを起動した状態で、新しいターミナルで以下を実行します。
+   ```bash
+   ngrok http 4173
+   ```
 
-### 5. アクセス
+3. **スマホでアクセス**
+   ターミナルに表示される `Forwarding` のURL (例: `https://xxxx.ngrok-free.app`) をスマホのブラウザで開きます。
 
-ブラウザで以下のURLにアクセスしてください。
+4. **ホーム画面に追加**
+   ブラウザのメニューから「ホーム画面に追加」を選択すると、アプリとしてインストールできます。
 
-*   **このPCから**: `http://localhost:8000`
-*   **同じWi-Fi内のスマホなどから**: `http://<PCのIPアドレス>:8000`
-
-## 注意事項
-
-*   **画像とデータ**: `database.db`（レビューデータ）と `uploads/`（画像）はGitに含まれていません。
-    *   **新規スタート**: そのまま使い始めれば、新しい空のデータベースが作成されます。
-    *   **データを移行したい場合**: 元のPCから `backend/database.db` と `backend/uploads/` フォルダの中身を、新しいPCの同じ場所に手動でコピーしてください。
+### トラブルシューティング
+*   **「Visit Site」画面が出る**: ngrokの仕様です。「Visit Site」ボタンを押してください。
+*   **真っ白な画面になる**: `npm run preview` が動いているか確認してください。
+*   **アイコンがおかしい**: ブラウザのキャッシュを削除するか、URLを変えて試してください。
